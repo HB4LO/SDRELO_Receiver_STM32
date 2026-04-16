@@ -1,0 +1,27 @@
+################################################################################
+# Automatically-generated file. Do not edit!
+# Toolchain: GNU Tools for STM32 (14.3.rel1)
+################################################################################
+
+# Add inputs and outputs from these tool invocations to the build variables 
+C_SRCS += \
+../tinyusb-0.20.0/src/portable/nxp/lpc17_40/dcd_lpc17_40.c 
+
+OBJS += \
+./tinyusb-0.20.0/src/portable/nxp/lpc17_40/dcd_lpc17_40.o 
+
+C_DEPS += \
+./tinyusb-0.20.0/src/portable/nxp/lpc17_40/dcd_lpc17_40.d 
+
+
+# Each subdirectory must supply rules for building sources it contributes
+tinyusb-0.20.0/src/portable/nxp/lpc17_40/%.o tinyusb-0.20.0/src/portable/nxp/lpc17_40/%.su tinyusb-0.20.0/src/portable/nxp/lpc17_40/%.cyclo: ../tinyusb-0.20.0/src/portable/nxp/lpc17_40/%.c tinyusb-0.20.0/src/portable/nxp/lpc17_40/subdir.mk
+	arm-none-eabi-gcc "$<" -mcpu=cortex-m4 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F411xE -c -I../Core/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc -I../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F4xx/Include -I../Drivers/CMSIS/Include -I"C:/Users/Zappvion/Documents/PROJETS_ELO/ft8-radio/5_Programmation/F411_RX_SDR_USB_CDC/SDR_RX_CDC_COM_NO_AUDIO/tinyusb-0.20.0/src" -I"C:/Users/Zappvion/Documents/PROJETS_ELO/ft8-radio/5_Programmation/F411_RX_SDR_USB_CDC/SDR_RX_CDC_COM_NO_AUDIO/tinyusb-0.20.0/src/device" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -o "$@"
+
+clean: clean-tinyusb-2d-0-2e-20-2e-0-2f-src-2f-portable-2f-nxp-2f-lpc17_40
+
+clean-tinyusb-2d-0-2e-20-2e-0-2f-src-2f-portable-2f-nxp-2f-lpc17_40:
+	-$(RM) ./tinyusb-0.20.0/src/portable/nxp/lpc17_40/dcd_lpc17_40.cyclo ./tinyusb-0.20.0/src/portable/nxp/lpc17_40/dcd_lpc17_40.d ./tinyusb-0.20.0/src/portable/nxp/lpc17_40/dcd_lpc17_40.o ./tinyusb-0.20.0/src/portable/nxp/lpc17_40/dcd_lpc17_40.su
+
+.PHONY: clean-tinyusb-2d-0-2e-20-2e-0-2f-src-2f-portable-2f-nxp-2f-lpc17_40
+

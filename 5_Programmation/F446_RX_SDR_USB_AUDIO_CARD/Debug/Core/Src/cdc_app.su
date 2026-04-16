@@ -1,0 +1,3 @@
+../Core/Src/cdc_app.c:46:6:tud_cdc_line_state_cb	16	static
+../Core/Src/cdc_app.c:50:6:process_cat_command	104	static
+../Core/Src/cdc_app.c:112:6:tud_cdc_rx_cb	96	static

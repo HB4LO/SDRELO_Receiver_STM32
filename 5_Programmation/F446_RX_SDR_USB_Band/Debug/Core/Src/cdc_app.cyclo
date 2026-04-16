@@ -1,0 +1,2 @@
+../Core/Src/cdc_app.c:52:6:tud_cdc_line_state_cb	1
+../Core/Src/cdc_app.c:64:6:tud_cdc_rx_cb	10

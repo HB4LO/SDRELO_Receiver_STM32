@@ -1,0 +1,11 @@
+../Core/Src/uac2_app.c:70:6:audio_task	1
+../Core/Src/uac2_app.c:88:13:tud_audio_clock_get_request	9
+../Core/Src/uac2_app.c:132:13:tud_audio_clock_set_request	6
+../Core/Src/uac2_app.c:158:13:tud_audio_feature_unit_get_request	8
+../Core/Src/uac2_app.c:194:13:tud_audio_feature_unit_set_request	8
+../Core/Src/uac2_app.c:234:6:tud_audio_get_req_entity_cb	3
+../Core/Src/uac2_app.c:250:6:tud_audio_set_req_entity_cb	3
+../Core/Src/uac2_app.c:265:6:tud_audio_set_itf_close_ep_cb	3
+../Core/Src/uac2_app.c:280:6:tud_audio_set_itf_cb	4
+../Core/Src/uac2_app.c:300:6:tud_audio_rx_done_isr	2
+../Core/Src/uac2_app.c:366:6:tud_audio_tx_done_isr	1
