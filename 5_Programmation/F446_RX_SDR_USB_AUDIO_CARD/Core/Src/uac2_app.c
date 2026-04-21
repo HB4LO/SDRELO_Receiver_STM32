@@ -390,20 +390,33 @@ bool tud_audio_tx_done_isr(uint8_t rhport, uint16_t n_bytes_sent, uint8_t func_i
 	// UAC specs bound this strictly to identical intervals over ISOC
 	uint8_t bytes_per_sample = (cur_alt_setting == 1) ? CFG_TUD_AUDIO_FUNC_1_FORMAT_1_N_BYTES_PER_SAMPLE_TX : CFG_TUD_AUDIO_FUNC_1_FORMAT_2_N_BYTES_PER_SAMPLE_TX;
 	uint16_t max_samples_per_tx = CFG_TUD_AUDIO_FUNC_1_EP_IN_SZ_MAX / bytes_per_sample;
+
+	// Keep a back-pressure latency buffer (3ms equivalent) before unlocking the USB stream.
+	// This prevents chunking jitter and clock drift from scraping the bottom of the FIFO!
+	static bool stream_unlocked = false;
+	if (!stream_unlocked) {
+		if (available_samples >= (max_samples_per_tx * 3)) {
+			stream_unlocked = true;
+		} else {
+			// Send perfect dummy silence exactly matching the frame requirement while we let the ADC cache catch up
+			memset(mic_buf, 0, max_samples_per_tx * 2);
+			if (bytes_per_sample == 4) {
+				int32_t buf32[48] = {0};
+				tud_audio_write((uint8_t*)buf32, max_samples_per_tx * 4);
+			} else {
+				tud_audio_write((uint8_t*)mic_buf, max_samples_per_tx * 2);
+			}
+			return true;
+		}
+	}
 	
 	uint16_t tx_samples = available_samples;
 	if (tx_samples > max_samples_per_tx) {
 		tx_samples = max_samples_per_tx;
 	}
 
-	if (tx_samples == 0) {
-		// If ADC falls behind or completely starves, we MUST send an empty/dummy frame to keep ISOC loop alive!
-		tx_samples = max_samples_per_tx;
-		memset(mic_buf, 0, tx_samples * 2);
-	} else {
-		for (uint16_t i = 0; i < tx_samples; i++) {
-			mic_buf[i] = pop_audio_fifo();
-		}
+	for (uint16_t i = 0; i < tx_samples; i++) {
+		mic_buf[i] = pop_audio_fifo();
 	}
 	
 	// Convert formatting safely if host requested 24/32-bit width Alt 2

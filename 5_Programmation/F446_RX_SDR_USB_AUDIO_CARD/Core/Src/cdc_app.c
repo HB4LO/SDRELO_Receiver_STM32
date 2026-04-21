@@ -39,7 +39,6 @@
 static char cat_rx_buf[64];
 static uint8_t cat_rx_idx = 0;
 
-static uint32_t current_freq = 7074000;
 static uint8_t current_mode = 3; // MD3 could be roughly USB or DIGI
 static uint8_t is_tx = 0;
 
@@ -67,9 +66,10 @@ void process_cat_command(uint8_t itf, const char* cmd, uint8_t len) {
         }
     }
     else if (strncmp(cmd, "IF", 2) == 0) { 
-        // 38 byte Kenwood TS-480 IF response + ;
-        sprintf(tx_buf, "IF%011lu     +000000000%d%d000000;", 
-                (unsigned long)current_freq, (is_tx ? 1 : 0), current_mode);
+        // Kenwood TS-480 IF response (Must be EXACTLY 37 chars of payload + ;)
+        // Using exactly 8 trailing zeros instead of 9 to perfectly align to expected data length!
+        sprintf(tx_buf, "IF%011lu     +000000000%d%d0000000;",
+                (unsigned long)current_freq, (is_tx ? 1 : 0), current_mode % 10);
     }
     else if (strncmp(cmd, "ID", 2) == 0) {
         sprintf(tx_buf, "ID020;"); // ID020 is TS-480
@@ -110,21 +110,19 @@ void process_cat_command(uint8_t itf, const char* cmd, uint8_t len) {
 }
 
 void tud_cdc_rx_cb(uint8_t itf) {
-    if (tud_cdc_connected()) {
-        uint32_t count = tud_cdc_available();
-        if (count > 0) {
-            char buf[64];
-            uint32_t read_bytes = tud_cdc_n_read(itf, buf, sizeof(buf));
-            for (uint32_t i = 0; i < read_bytes; i++) {
-                char c = buf[i];
-                if (c == ';') { // End of command
-                    cat_rx_buf[cat_rx_idx] = '\0';
-                    process_cat_command(itf, cat_rx_buf, cat_rx_idx);
-                    cat_rx_idx = 0;
-                } else if (cat_rx_idx < sizeof(cat_rx_buf) - 1) {
-                    if (isprint(c)) { // Only store printable chars
-                        cat_rx_buf[cat_rx_idx++] = c;
-                    }
+    uint32_t count = tud_cdc_available();
+    if (count > 0) {
+        char buf[64];
+        uint32_t read_bytes = tud_cdc_n_read(itf, buf, sizeof(buf));
+        for (uint32_t i = 0; i < read_bytes; i++) {
+            char c = buf[i];
+            if (c == ';') { // End of command
+                cat_rx_buf[cat_rx_idx] = '\0';
+                process_cat_command(itf, cat_rx_buf, cat_rx_idx);
+                cat_rx_idx = 0;
+            } else if (cat_rx_idx < sizeof(cat_rx_buf) - 1) {
+                if (isprint(c)) { // Only store printable chars
+                    cat_rx_buf[cat_rx_idx++] = c;
                 }
             }
         }

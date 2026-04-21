@@ -33,6 +33,8 @@ enum
   VOLUME_CTRL_SILENCE = 0x8000,
 };
 
+extern uint32_t current_freq;
+
 void led_blinking_task(void);
 void audio_task(void);
 

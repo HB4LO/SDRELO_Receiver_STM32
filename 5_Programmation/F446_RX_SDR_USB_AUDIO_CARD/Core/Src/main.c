@@ -36,7 +36,7 @@
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
 #define FREQ_40M 7074000
-#define ADC_DMA_BUF_SIZE 256
+#define ADC_DMA_BUF_SIZE 96
 #define AUDIO_FIFO_SIZE 4096
 /* USER CODE END PD */
 
@@ -57,6 +57,7 @@ TIM_HandleTypeDef htim3;
 PCD_HandleTypeDef hpcd_USB_OTG_FS;
 
 /* USER CODE BEGIN PV */
+uint32_t current_freq = FREQ_40M;
 uint32_t adc_dma_buf[ADC_DMA_BUF_SIZE];
 volatile int16_t audio_fifo[AUDIO_FIFO_SIZE];
 volatile uint16_t audio_fifo_head = 0;
@@ -119,7 +120,7 @@ void Setup_Tayloe_Mixer_LO(uint32_t freq_hz)
     si5351OutputConfig_t out_conf;
 
     // 1. Initialize the Si5351 module
-    si5351_Init(0);
+    si5351_Init(7760);
 
     // 2. Calculate the PLL and Multisynth parameters for IQ (90° offset)
     si5351_CalcIQ(freq_hz, &pll_conf, &out_conf);
@@ -188,18 +189,18 @@ int main(void)
   MX_TIM3_Init();
   /* USER CODE BEGIN 2 */
   TU_ASSERT(tusb_init());
-  Setup_Tayloe_Mixer_LO(FREQ_40M);
+  Setup_Tayloe_Mixer_LO(current_freq);
   
   // TODO: Future version - enable Stereo (I+Q) USB Audio for full SDR support.
   // When switching to I+Q mode, push both the I and Q samples to the FIFO and
   // change the USB Descriptor back to 2 channels.
   
-  // Start the timer to trigger ADC
-  HAL_TIM_Base_Start(&htim3);
-  // Start Slave ADC first
+  // Start Slave ADC first to prevent Dual Mode Master from hanging during REGSIMULT sync!
   HAL_ADC_Start(&hadc2);
   // Start ADC Dual Mode DMA (interleaved 32-bit: ADC2 in high word, ADC1 in low word)
   HAL_ADCEx_MultiModeStart_DMA(&hadc1, (uint32_t *)adc_dma_buf, ADC_DMA_BUF_SIZE);
+  // Start the timer to trigger ADC
+  HAL_TIM_Base_Start(&htim3);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -292,7 +293,7 @@ static void MX_ADC1_Init(void)
   hadc1.Init.ExternalTrigConv = ADC_EXTERNALTRIGCONV_T3_TRGO;
   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
   hadc1.Init.NbrOfConversion = 1;
-  hadc1.Init.DMAContinuousRequests = DISABLE;
+  hadc1.Init.DMAContinuousRequests = ENABLE;
   hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
   if (HAL_ADC_Init(&hadc1) != HAL_OK)
   {
